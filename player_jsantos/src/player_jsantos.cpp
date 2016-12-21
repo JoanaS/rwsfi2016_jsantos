@@ -103,7 +103,7 @@ class MyPlayer: public rwsfi2016_libs::Player
             string arena = "/map";
             move(msg.max_displacement, getAngleToPLayer(arena));
         }
-       /* else if(dist_min_hunter < near_player_distance)
+        else if(dist_min_hunter < near_player_distance)
         {
             double angle_temp = getAngleToPLayer(hunters_team->players[angleMinHunter]);
             finalAngle = angle_temp+M_PI;
@@ -112,7 +112,7 @@ class MyPlayer: public rwsfi2016_libs::Player
 
             move(msg.max_displacement,  finalAngle);
             bocas_msg.text = "Deixem-me jogar!";
-        }*/
+        }
         else
             move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
 
