@@ -66,8 +66,6 @@ class MyPlayer: public rwsfi2016_libs::Player
         double near_player_distance = 1000.0;
         int index_near_player = 0;
 
-        std::cout << "Number of Preys: "<< preys_team->players.size() << std::endl;
-
         for(int i=0; i < msg.blue_alive.size(); i++)
         {
            // std::cout << preys_team->players[i] << std::endl;
@@ -102,6 +100,7 @@ class MyPlayer: public rwsfi2016_libs::Player
         {
             string arena = "/map";
             move(msg.max_displacement, getAngleToPLayer(arena));
+            bocas_msg.text = "Quase!";
         }
         else if(dist_min_hunter < near_player_distance)
         {
@@ -114,13 +113,12 @@ class MyPlayer: public rwsfi2016_libs::Player
             bocas_msg.text = "Deixem-me jogar!";
         }
         else
+        {
             move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
-
-
+            bocas_msg.text = "Vou-te apanhar!";
+        }
 
         publisher.publish(bocas_msg);
-
-
 
       //Behaviour follow the closest prey
       //move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
