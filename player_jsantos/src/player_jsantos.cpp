@@ -32,18 +32,19 @@ class MyPlayer: public rwsfi2016_libs::Player
       //Custom play behaviour. Now I will win the game
 
         double near_player_distance = 1000.0;
-        int index_near_player = 0.0;
+        int index_near_player = 0;
 
         std::cout << "Number of Preys: "<< preys_team->players.size() << std::endl;
 
         for(int i=0; i < preys_team->players.size(); i++)
         {
-            std::cout << preys_team->players[i] << std::endl;
-            std::cout << "Get Distance: "<< getDistanceToPlayer(preys_team->players[i]) << std::endl;
+           // std::cout << preys_team->players[i] << std::endl;
+            float distance = getDistanceToPlayer(preys_team->players[i]);
+            //std::cout << "Get Distance: "<< isnan(distance) << std::endl;
 
-            if( getDistanceToPlayer(preys_team->players[i]) < near_player_distance)
+            if( (distance < near_player_distance) && (!isnan(distance)))
             {
-                near_player_distance = getDistanceToPlayer(preys_team->players[i]);
+                near_player_distance = distance;
                 index_near_player    = i;
             }
         }
