@@ -5,6 +5,7 @@
 #include <ros/ros.h>
 #include <rwsfi2016_libs/player.h>
 #include <visualization_msgs/Marker.h>
+#include <rwsfi2016_msgs/GameQuery.h>
 
 /* _________________________________
    |                                 |
@@ -22,6 +23,7 @@ class MyPlayer: public rwsfi2016_libs::Player
   public:
 
     ros::Publisher publisher;
+    ros::ServiceServer service;
     visualization_msgs::Marker bocas_msg;
 
     /**
@@ -32,18 +34,28 @@ class MyPlayer: public rwsfi2016_libs::Player
     MyPlayer(string player_name, string pet_name="/dog"): Player(player_name, pet_name)
     {
         publisher = node.advertise<visualization_msgs::Marker>("/bocas", 1);
-                    bocas_msg.header.frame_id = name;
-                    bocas_msg.ns = name;
-                    bocas_msg.id = 0;
-                    bocas_msg.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-                    bocas_msg.action = visualization_msgs::Marker::ADD;
-                    bocas_msg.scale.z = 0.4;
-                    bocas_msg.pose.position.y = 0.3;
-                    bocas_msg.color.a = 1.0; // Don't forget to set the alpha!
-                    bocas_msg.color.r = 0.0;
-                    bocas_msg.color.g = 0.0;
+
+        bocas_msg.header.frame_id = name;
+        bocas_msg.ns = name;
+        bocas_msg.id = 0;
+        bocas_msg.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+        bocas_msg.action = visualization_msgs::Marker::ADD;
+        bocas_msg.scale.z = 0.4;
+        bocas_msg.pose.position.y = 0.3;
+        bocas_msg.color.a = 1.0; // Don't forget to set the alpha!
+        bocas_msg.color.r = 0.0;
+        bocas_msg.color.g = 0.0;
         bocas_msg.color.b = 0.0;
+
+        service = node.advertiseService(name + "/game_query", &MyPlayer::sayHello, this);
     };
+
+    bool sayHello(rwsfi2016_msgs::GameQuery::Request &req, rwsfi2016_msgs::GameQuery::Response &res)
+    {
+      res.resposta = "Hello";
+      ROS_INFO("sending back response: Hello");
+      return true;
+    }
 
     void play(const rwsfi2016_msgs::MakeAPlay& msg)
     {
@@ -86,12 +98,12 @@ class MyPlayer: public rwsfi2016_libs::Player
 
         float finalAngle;
 
-        if (distance_to_arena > 6) //behaviour move to the center of arena
+        if (distance_to_arena > 7.3) //behaviour move to the center of arena
         {
             string arena = "/map";
             move(msg.max_displacement, getAngleToPLayer(arena));
         }
-        else if(dist_min_hunter < near_player_distance)
+       /* else if(dist_min_hunter < near_player_distance)
         {
             double angle_temp = getAngleToPLayer(hunters_team->players[angleMinHunter]);
             finalAngle = angle_temp+M_PI;
@@ -100,7 +112,7 @@ class MyPlayer: public rwsfi2016_libs::Player
 
             move(msg.max_displacement,  finalAngle);
             bocas_msg.text = "Deixem-me jogar!";
-        }
+        }*/
         else
             move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
 
@@ -128,7 +140,7 @@ int main(int argc, char** argv)
   //Replace this with your name
   // ------------------------
   string my_name = "jsantos";
-  string my_pet = "/cat";
+  string my_pet = "/cheetah";
 
   //initialize ROS stuff
   ros::init(argc, argv, my_name);
