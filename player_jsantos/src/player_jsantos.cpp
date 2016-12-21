@@ -102,17 +102,21 @@ class MyPlayer: public rwsfi2016_libs::Player
             move(msg.max_displacement, getAngleToPLayer(arena));
             bocas_msg.text = "Quase!";
         }
-        else if(dist_min_hunter < near_player_distance)
+        else if(dist_min_hunter < near_player_distance) //FUGIR
         {
-            double angle_temp = getAngleToPLayer(hunters_team->players[angleMinHunter]);
-            finalAngle = angle_temp+M_PI;
+            double angle_temp = getAngleToPLayer(msg.red_alive[angleMinHunter]); //caçador
+            double angle_presa = getAngleToPLayer(msg.blue_alive[index_near_player]); //presa
+
+            finalAngle = (angle_presa+angle_temp)/2.0;
+
+
             if (angle_temp > 0)
                 finalAngle = angle_temp-M_PI;
 
             move(msg.max_displacement,  finalAngle);
             bocas_msg.text = "Deixem-me jogar!";
         }
-        else
+        else //CAÇAR
         {
             move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
             bocas_msg.text = "Vou-te apanhar!";
