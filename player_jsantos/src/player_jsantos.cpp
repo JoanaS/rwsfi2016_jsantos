@@ -33,14 +33,13 @@ class MyPlayer: public rwsfi2016_libs::Player
 
         double distance_to_arena = getDistanceToArena();
         ROS_INFO("distance_to_arena = %f", distance_to_arena);
-
+/*
         if (distance_to_arena > 6) //behaviour move to the center of arena
         {
             string arena = "/map";
             move(msg.max_displacement, getAngleToPLayer(arena));
         }
-
-
+*/
         double near_player_distance = 1000.0;
         int index_near_player = 0;
 
@@ -61,6 +60,17 @@ class MyPlayer: public rwsfi2016_libs::Player
 
       //Behaviour follow the closest prey
       move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
+
+
+      if (getDistanceToArena() < 5)
+      {
+          //Behaviour follow the closest prey
+          move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
+      }
+      else
+      {
+          move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) + M_PI );
+      }
 
     }
 };
