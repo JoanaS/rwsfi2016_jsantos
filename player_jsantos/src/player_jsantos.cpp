@@ -25,21 +25,18 @@ class MyPlayer: public rwsfi2016_libs::Player
      * @param name player name
      * @param pet_name pet name
      */
-    MyPlayer(string player_name, string pet_name="/dog"): Player(player_name, pet_name){};
+    MyPlayer(string player_name, string pet_name="/dog"): Player(player_name, pet_name)
+    {
+    };
 
     void play(const rwsfi2016_msgs::MakeAPlay& msg)
     {
       //Custom play behaviour. Now I will win the game
-
         double distance_to_arena = getDistanceToArena();
         ROS_INFO("distance_to_arena = %f", distance_to_arena);
-/*
-        if (distance_to_arena > 6) //behaviour move to the center of arena
-        {
-            string arena = "/map";
-            move(msg.max_displacement, getAngleToPLayer(arena));
-        }
-*/
+
+
+
         double near_player_distance = 1000.0;
         int index_near_player = 0;
 
@@ -58,20 +55,42 @@ class MyPlayer: public rwsfi2016_libs::Player
             }
         }
 
+        double dist_min_hunter = 1000.0;
+        double dist_hunter = 0.0;
+        int angleMinHunter = 0;
+
+        for (int pl=0; pl < hunters_team->players.size(); pl++)
+        {
+            dist_hunter = getDistanceToPlayer(hunters_team->players[pl]);
+
+            if ((dist_hunter < dist_min_hunter) && (!isnan(dist_hunter)))
+            {
+                angleMinHunter = pl;
+                dist_min_hunter = dist_hunter;
+            }
+        }
+
+        float finalAngle;
+
+        if (distance_to_arena > 6) //behaviour move to the center of arena
+        {
+            string arena = "/map";
+            move(msg.max_displacement, getAngleToPLayer(arena));
+        }
+        else if(dist_min_hunter < near_player_distance)
+        {
+            double angle_temp = getAngleToPLayer(hunters_team->players[angleMinHunter]);
+            finalAngle = angle_temp+M_PI;
+            if (angle_temp > 0)
+                finalAngle = angle_temp-M_PI;
+
+            move(msg.max_displacement,  finalAngle);
+        }
+        else
+            move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
+
       //Behaviour follow the closest prey
-      move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
-
-
-      if (getDistanceToArena() < 5)
-      {
-          //Behaviour follow the closest prey
-          move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
-      }
-      else
-      {
-          move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) + M_PI );
-      }
-
+      //move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
     }
 };
 
@@ -88,7 +107,7 @@ int main(int argc, char** argv)
   //Replace this with your name
   // ------------------------
   string my_name = "jsantos";
-  string my_pet = "/turtle";
+  string my_pet = "/cat";
 
   //initialize ROS stuff
   ros::init(argc, argv, my_name);
