@@ -36,10 +36,10 @@ class MyPlayer: public rwsfi2016_libs::Player
 
         std::cout << "Number of Preys: "<< preys_team->players.size() << std::endl;
 
-        for(int i=0; i < preys_team->players.size(); i++)
+        for(int i=0; i < msg.blue_alive.size(); i++)
         {
            // std::cout << preys_team->players[i] << std::endl;
-            float distance = getDistanceToPlayer(preys_team->players[i]);
+            float distance = getDistanceToPlayer(msg.blue_alive[i]);
             //std::cout << "Get Distance: "<< isnan(distance) << std::endl;
 
             if( (distance < near_player_distance) && (!isnan(distance)))
@@ -50,7 +50,8 @@ class MyPlayer: public rwsfi2016_libs::Player
         }
 
       //Behaviour follow the closest prey
-      move(msg.max_displacement, getAngleToPLayer(preys_team->players[index_near_player]) );
+      move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
+
     }
 };
 
