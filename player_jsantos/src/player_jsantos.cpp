@@ -31,6 +31,16 @@ class MyPlayer: public rwsfi2016_libs::Player
     {
       //Custom play behaviour. Now I will win the game
 
+        double distance_to_arena = getDistanceToArena();
+        ROS_INFO("distance_to_arena = %f", distance_to_arena);
+
+        if (distance_to_arena > 6) //behaviour move to the center of arena
+        {
+            string arena = "/map";
+            move(msg.max_displacement, getAngleToPLayer(arena));
+        }
+
+
         double near_player_distance = 1000.0;
         int index_near_player = 0;
 
