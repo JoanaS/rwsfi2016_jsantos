@@ -104,10 +104,10 @@ class MyPlayer: public rwsfi2016_libs::Player
         }
         else if(dist_min_hunter < near_player_distance) //FUGIR
         {
-            double angle_temp = getAngleToPLayer(msg.red_alive[angleMinHunter]); //caçador
-            double angle_presa = getAngleToPLayer(msg.blue_alive[index_near_player]); //presa
+            double angle_temp = getAngleToPLayer(hunters_team->players[angleMinHunter]);
 
-            finalAngle = (angle_presa+angle_temp)/2.0;
+
+            finalAngle = angle_temp+M_PI;
 
 
             if (angle_temp > 0)
