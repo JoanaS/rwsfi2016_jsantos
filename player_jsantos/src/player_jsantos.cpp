@@ -4,6 +4,7 @@
    |_________________________________| */
 #include <ros/ros.h>
 #include <rwsfi2016_libs/player.h>
+#include <visualization_msgs/Marker.h>
 
 /* _________________________________
    |                                 |
@@ -20,6 +21,9 @@ class MyPlayer: public rwsfi2016_libs::Player
 {
   public:
 
+    ros::Publisher publisher;
+    visualization_msgs::Marker bocas_msg;
+
     /**
      * @brief Constructor, nothing to be done here
      * @param name player name
@@ -27,6 +31,18 @@ class MyPlayer: public rwsfi2016_libs::Player
      */
     MyPlayer(string player_name, string pet_name="/dog"): Player(player_name, pet_name)
     {
+        publisher = node.advertise<visualization_msgs::Marker>("/bocas", 1);
+                    bocas_msg.header.frame_id = name;
+                    bocas_msg.ns = name;
+                    bocas_msg.id = 0;
+                    bocas_msg.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+                    bocas_msg.action = visualization_msgs::Marker::ADD;
+                    bocas_msg.scale.z = 0.4;
+                    bocas_msg.pose.position.y = 0.3;
+                    bocas_msg.color.a = 1.0; // Don't forget to set the alpha!
+                    bocas_msg.color.r = 0.0;
+                    bocas_msg.color.g = 0.0;
+        bocas_msg.color.b = 0.0;
     };
 
     void play(const rwsfi2016_msgs::MakeAPlay& msg)
@@ -34,8 +50,6 @@ class MyPlayer: public rwsfi2016_libs::Player
       //Custom play behaviour. Now I will win the game
         double distance_to_arena = getDistanceToArena();
         ROS_INFO("distance_to_arena = %f", distance_to_arena);
-
-
 
         double near_player_distance = 1000.0;
         int index_near_player = 0;
@@ -85,9 +99,16 @@ class MyPlayer: public rwsfi2016_libs::Player
                 finalAngle = angle_temp-M_PI;
 
             move(msg.max_displacement,  finalAngle);
+            bocas_msg.text = "Deixem-me jogar!";
         }
         else
             move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
+
+
+
+        publisher.publish(bocas_msg);
+
+
 
       //Behaviour follow the closest prey
       //move(msg.max_displacement, getAngleToPLayer(msg.blue_alive[index_near_player]) );
