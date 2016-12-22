@@ -5,7 +5,17 @@
 #include <ros/ros.h>
 #include <rwsfi2016_libs/player.h>
 #include <visualization_msgs/Marker.h>
+#include <sensor_msgs/PointCloud2.h>
 #include <rwsfi2016_msgs/GameQuery.h>
+
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl/point_types.h>
+#include <pcl/PCLPointCloud2.h>
+#include <pcl/conversions.h>
+#include <pcl_ros/transforms.h>
+
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl_ros/point_cloud.h>
 
 /* _________________________________
    |                                 |
@@ -23,8 +33,12 @@ class MyPlayer: public rwsfi2016_libs::Player
   public:
 
     ros::Publisher publisher;
+    ros::Subscriber subscriber;
     ros::ServiceServer service;
     visualization_msgs::Marker bocas_msg;
+
+    typedef pcl::PointXYZRGB PointT;
+    pcl::PointCloud<PointT> cloud;
 
     /**
      * @brief Constructor, nothing to be done here
@@ -47,14 +61,24 @@ class MyPlayer: public rwsfi2016_libs::Player
         bocas_msg.color.g = 0.0;
         bocas_msg.color.b = 0.0;
 
-        service = node.advertiseService(name + "/game_query", &MyPlayer::sayHello, this);
+        subscriber = node.subscribe("/object_point_cloud", 1, &MyPlayer::cloud_callback, this);
+
+        service = node.advertiseService(name + "/game_query", &MyPlayer::query_Response, this);
     };
 
-    bool sayHello(rwsfi2016_msgs::GameQuery::Request &req, rwsfi2016_msgs::GameQuery::Response &res)
+    bool query_Response(rwsfi2016_msgs::GameQuery::Request &req, rwsfi2016_msgs::GameQuery::Response &res)
     {
-      res.resposta = "Hello";
-      ROS_INFO("sending back response: Hello");
-      return true;
+        res.resposta = "banana";
+        ROS_INFO("******* sending back response: BANANA");
+
+        return true;
+    }
+
+    void cloud_callback(sensor_msgs::PointCloud2 msg)
+    {
+        //Convert the ros message to pcl point cloud
+        pcl::fromROSMsg(msg, cloud);
+        ROS_INFO("Point Cloud Converted");
     }
 
     void play(const rwsfi2016_msgs::MakeAPlay& msg)
