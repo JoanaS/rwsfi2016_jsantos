@@ -59,7 +59,9 @@ class MyPlayer: public rwsfi2016_libs::Player
 
     void play(const rwsfi2016_msgs::MakeAPlay& msg)
     {
-        // Player to kill
+        bocas_msg.header.stamp = ros::Time();
+
+                // Player to kill
                 int killkill = 2;
 
                 // Distance to arena
@@ -74,10 +76,23 @@ class MyPlayer: public rwsfi2016_libs::Player
                         // Kill player id "killkill"
                         string kill_player_name = msg.blue_alive.at(killkill);
                         for (int pl=0; pl<msg.blue_alive.size(); pl++) {
-                            if (kill_player_name.compare(msg.blue_alive.at(pl)) != 0)
-                                killkill = 0;
+                            if (kill_player_name.compare(msg.blue_alive.at(pl)) != 0) {
+                                // Procura o alive mais perto
+                                double dist_min = 100000;
+                                int angleMin = 0;
+                                double dist = 0;
+                                for (int pl=0; pl < msg.blue_alive.size(); pl++) {
+                                    dist = getDistanceToPlayer(msg.blue_alive.at(pl));
+                                    if ((dist < dist_min) && (!isnan(dist) ) ) {
+                                        killkill = pl;
+                                        dist_min = dist;
+                                    }
+                                }
+                            }
+                            break;
                         }
                         move(msg.max_displacement, getAngleToPLayer(msg.blue_alive.at(killkill)));
+                        bocas_msg.text = msg.blue_alive.at(killkill) + ", toma toma toma foguetinhos!!!";
                     } else { // Se estiverem todos mortos
                         double dist_min_hunter = 100000;
                         double dist_hunter = 0;
@@ -97,8 +112,11 @@ class MyPlayer: public rwsfi2016_libs::Player
                             finalAngle = angle_temp-M_PI;
                         //MOVE//
                         move(msg.max_displacement, finalAngle);
+                        bocas_msg.text = "Foge que vem ai o predador " + hunters_team->players[angleMinHunter];
                     }
                 }
+
+                publisher.publish(bocas_msg);
     }
 };
 
