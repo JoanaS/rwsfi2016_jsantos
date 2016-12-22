@@ -38,7 +38,7 @@ class MyPlayer: public rwsfi2016_libs::Player
     visualization_msgs::Marker bocas_msg;
 
     typedef pcl::PointXYZRGB PointT;
-    pcl::PointCloud<PointT> cloud;
+    pcl::PointCloud<PointT> objectReceived;
 
     /**
      * @brief Constructor, nothing to be done here
@@ -68,14 +68,45 @@ class MyPlayer: public rwsfi2016_libs::Player
 
     bool query_Response(rwsfi2016_msgs::GameQuery::Request &req, rwsfi2016_msgs::GameQuery::Response &res)
     {
-        if (cloud.points.size() == 3805)
-            res.resposta = "soda_can";
-        if (cloud.points.size() == 3979)
+        // Object to analyze double
+        double meanValR = 0.0;
+        double meanValG = 0.0;
+        double meanValB = 0.0;
+        int objectSize = 0;
+        for (int pt = 0; pt < objectReceived.points.size(); pt++)
+        {
+            if (!isnan(objectReceived.points[pt].r))
+            {
+                meanValR += objectReceived.points[pt].r;
+                meanValG += objectReceived.points[pt].g;
+                meanValB += objectReceived.points[pt].b;
+                objectSize++;
+            }
+        } // Compute mean meanValR = meanValR/objectSize; meanValG = meanValG/objectSize; meanValB = meanValB/objectSize;
+        // std::cout << "R: " << meanValR << std::endl;
+        // std::cout << "G: " << meanValG << std::endl; // std::cout << "B: " << meanValB << std::endl;
+        if (meanValR > 130)
+        {
             res.resposta = "banana";
-        if (cloud.points.size() == 3468)
-            res.resposta = "onion";
-        if (cloud.points.size() == 1570)
-            res.resposta = "tomato";
+        }
+        else
+        {
+            if (meanValR > 90)
+            {
+                res.resposta = "tomato";
+            }
+            else
+            {
+                if (meanValB > 70)
+                {
+                    res.resposta = "soda_can";
+                }
+                else
+                {
+                    res.resposta = "onion";
+                }
+            }
+        }
 
         ROS_INFO("******* sending back response: BANANA");
 
@@ -85,7 +116,7 @@ class MyPlayer: public rwsfi2016_libs::Player
     void cloud_callback(sensor_msgs::PointCloud2 msg)
     {
         //Convert the ros message to pcl point cloud
-        pcl::fromROSMsg(msg, cloud);
+        pcl::fromROSMsg(msg, objectReceived);
         ROS_INFO("Point Cloud Converted");
     }
 
