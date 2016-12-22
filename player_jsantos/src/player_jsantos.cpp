@@ -68,7 +68,15 @@ class MyPlayer: public rwsfi2016_libs::Player
 
     bool query_Response(rwsfi2016_msgs::GameQuery::Request &req, rwsfi2016_msgs::GameQuery::Response &res)
     {
-        res.resposta = "banana";
+        if (cloud.points.size() == 3805)
+            res.resposta = "soda_can";
+        if (cloud.points.size() == 3979)
+            res.resposta = "banana";
+        if (cloud.points.size() == 3468)
+            res.resposta = "onion";
+        if (cloud.points.size() == 1570)
+            res.resposta = "tomato";
+
         ROS_INFO("******* sending back response: BANANA");
 
         return true;
