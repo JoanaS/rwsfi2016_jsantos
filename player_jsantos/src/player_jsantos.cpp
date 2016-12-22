@@ -38,7 +38,7 @@ class MyPlayer: public rwsfi2016_libs::Player
     visualization_msgs::Marker bocas_msg;
 
     typedef pcl::PointXYZRGB PointT;
-    pcl::PointCloud<PointT> objectReceived;
+    pcl::PointCloud<PointT> cloud;
 
     /**
      * @brief Constructor, nothing to be done here
@@ -68,55 +68,49 @@ class MyPlayer: public rwsfi2016_libs::Player
 
     bool query_Response(rwsfi2016_msgs::GameQuery::Request &req, rwsfi2016_msgs::GameQuery::Response &res)
     {
-        // Object to analyze double
-        double meanValR = 0.0;
         double meanValG = 0.0;
-        double meanValB = 0.0;
-        int objectSize = 0;
-        for (int pt = 0; pt < objectReceived.points.size(); pt++)
-        {
-            if (!isnan(objectReceived.points[pt].r))
-            {
-                meanValR += objectReceived.points[pt].r;
-                meanValG += objectReceived.points[pt].g;
-                meanValB += objectReceived.points[pt].b;
-                objectSize++;
-            }
-        } // Compute mean meanValR = meanValR/objectSize; meanValG = meanValG/objectSize; meanValB = meanValB/objectSize;
-        // std::cout << "R: " << meanValR << std::endl;
-        // std::cout << "G: " << meanValG << std::endl; // std::cout << "B: " << meanValB << std::endl;
-        if (meanValR > 130)
-        {
-            res.resposta = "banana";
-        }
-        else
-        {
-            if (meanValR > 90)
-            {
-                res.resposta = "tomato";
-            }
-            else
-            {
-                if (meanValB > 70)
-                {
-                    res.resposta = "soda_can";
+                double meanValB = 0.0;
+                double meanValR = 0.0;
+                int objectSize = 0;
+                for (int pt = 0; pt < cloud.points.size(); pt++) {
+                    if (!isnan(cloud.points[pt].r)) {
+                        meanValR += cloud.points[pt].r;
+                        meanValG += cloud.points[pt].g;
+                        meanValB += cloud.points[pt].b;
+                        objectSize++;
+                    }
                 }
-                else
-                {
-                    res.resposta = "onion";
+                // Compute mean
+                meanValR = meanValR/objectSize;
+                meanValG = meanValG/objectSize;
+                meanValB = meanValB/objectSize;
+                //        std::cout << "R: " << meanValR << std::endl;
+                //        std::cout << "G: " << meanValG << std::endl;
+                //        std::cout << "B: " << meanValB << std::endl;
+                if (meanValR > 130) {
+                    res.resposta = "banana";
+                } else {
+                    if (meanValR > 90) {
+                        res.resposta = "tomato";
+                    } else {
+                        if (meanValB > 70) {
+                            res.resposta = "soda_can";
+                        } else {
+                            res.resposta = "onion";
+                        }
+                    }
                 }
-            }
-        }
-
-        ROS_INFO("******* sending back response: BANANA");
 
         return true;
     }
 
     void cloud_callback(sensor_msgs::PointCloud2 msg)
     {
+        sensor_msgs::PointCloud2 pc_object = msg;
+
         //Convert the ros message to pcl point cloud
-        pcl::fromROSMsg(msg, objectReceived);
+
+        pcl::fromROSMsg(pc_object, cloud);
         ROS_INFO("Point Cloud Converted");
     }
 
